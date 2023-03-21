@@ -2,7 +2,10 @@
 @import url('./vendor/fonts/inter.css');
 
 @import url('./blocks/page/page.css');
+@import url('./blocks/page/__title/page__title.css');
 @import url('./blocks/page/__content/page__content.css');
+@import url('./blocks/page/__hint/page__hint.css');
+@import url('./blocks/page/__navigation-link/page__navigation-link.css');
 
 @import url('./blocks/main/main.css');
 
@@ -46,10 +49,13 @@
 @import url('./blocks/popup/_type_view-image/popup_type_view-image.css');
 
 @import url('./blocks/form/form.css');
-@import url('./blocks/form/_confirmation/form_confirmation.css');
+@import url('./blocks/form/_type_confirmation/form_type_confirmation.css');
+@import url('./blocks/form/_type_register/form_type_register.css');
 @import url('./blocks/form/__input/form__input.css');
+@import url('./blocks/form/__input/_theme_dark/input_theme_dark.css');
 @import url('./blocks/form/__input/_type_error/form__input_type_error.css');
 @import url('./blocks/form/__submit/form__submit.css');
+@import url('./blocks/form/__submit/_theme_dark/form__submit_theme_dark.css');
 @import url('./blocks/form/__submit/_confirmation/form__submit_confirmation.css');
 @import url('./blocks/form/__submit/_replace-avatar/form__submit_replace-avatar.css');
 @import url('./blocks/form/__submit/_disable/form__submit_disable.css');

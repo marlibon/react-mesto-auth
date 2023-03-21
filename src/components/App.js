@@ -1,8 +1,8 @@
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
-import React from "react";
 import { useEffect, useState } from 'react';
+import { Navigate, Route, redirect } from "react-router-dom";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
 import { api } from "../utils/api";
 
@@ -12,19 +12,24 @@ import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import ConfirmDeletePopup from "./ConfirmDeletePopup";
+import { Routes } from "react-router-dom";
+import ProtectedRoute from "./ProtectedRoute";
+import Register from "./Register";
+import Login from "./Login";
 
 function App () {
   const [isLoadingCards, setIsLoadingCards] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
-  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
-  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
-  const [isImagePopupOpen, setIsImagePopupOpen] = React.useState(false);
-  const [isConfirmDeletePopupOpen, setIsConfirmDeletePopupOpen] = React.useState(false);
-  const [futureDeletedCard, setFutureDeletedCard] = React.useState('');
-  const [selectedCard, setSelectedCard] = React.useState({ name: 'загрузка', link: imageLoading });
-  const [currentUser, setСurrentUser] = React.useState({ name: 'загрузка...', about: 'загрузка...', avatar: imageLoading, _id: '' });
+  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
+  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
+  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
+  const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
+  const [isConfirmDeletePopupOpen, setIsConfirmDeletePopupOpen] = useState(false);
+  const [futureDeletedCard, setFutureDeletedCard] = useState('');
+  const [selectedCard, setSelectedCard] = useState({ name: 'загрузка', link: imageLoading });
+  const [currentUser, setСurrentUser] = useState({ name: 'загрузка...', about: 'загрузка...', avatar: imageLoading, _id: '' });
   const [cards, setCards] = useState([]);
+  const [loggedIn, setLoggedIn] = useState(true);
 
   function handleEditProfileClick () {
     setIsEditProfilePopupOpen(!isEditProfilePopupOpen);
@@ -133,16 +138,21 @@ function App () {
     <CurrentUserContext.Provider value={currentUser}>
       <div className='page'>
         <Header />
-        <Main
-          cards={cards}
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onEditAvatar={handleEditAvatarClick}
-          onCardClick={handleCardClick}
-          onCardLike={handleCardLike}
-          onCardDelete={handleConfirmCardDelete}
-          onLoading={isLoadingCards}
-        />
+        <Routes>
+          <Route path="/" element={loggedIn ? <Main
+            cards={cards}
+            onEditProfile={handleEditProfileClick}
+            onAddPlace={handleAddPlaceClick}
+            onEditAvatar={handleEditAvatarClick}
+            onCardClick={handleCardClick}
+            onCardLike={handleCardLike}
+            onCardDelete={handleConfirmCardDelete}
+            onLoading={isLoadingCards}
+            loggedIn={loggedIn}
+          /> : <Navigate to="/sign-in" replace />} />
+          <Route path="/sign-in" element={<Login isLoading={isLoading} />} />
+          <Route path="/sign-up" element={<Register isLoading={isLoading} />} />
+        </Routes>
         <Footer />
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}

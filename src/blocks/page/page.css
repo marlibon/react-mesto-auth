@@ -7,4 +7,6 @@
   margin: 0 auto;
   align-items: center;
   min-height: 100vh;
+  font-family: 'Inter', Arial, Helvetica,
+    sans-serif;
 }
