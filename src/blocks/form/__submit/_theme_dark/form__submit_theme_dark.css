@@ -3,3 +3,16 @@
   background-color: #fff;
   color: #000;
 }
+.form__submit_theme_dark:hover {
+  opacity: 0.85;
+}
+@media screen and (max-width: 390px) {
+  .form__submit_theme_dark {
+    margin-top: 144px;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 19px;
+    text-align: center;
+  }
+}

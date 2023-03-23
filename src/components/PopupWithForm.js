@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import Popup from './Popup';
 
 function PopupWithForm (props) {
-  const { name, title, textButton, isOpen, onClose, children, onSubmit, isLoading, onState } = props;
-  const [stateButtonSubmit, setStateButtonSubmit] = useState(onState);
+  const { name, title, textButton, isOpen, onClose, children, onSubmit, isLoading, onStateButton } = props;
+  const [stateButtonSubmit, setStateButtonSubmit] = useState(onStateButton);
   function onChangeValidation (e) {
     const { name, value } = e.target
     console.log(name, value, e);
@@ -26,7 +26,7 @@ function PopupWithForm (props) {
     }
   }
   function handleSubmit (e) {
-    setStateButtonSubmit(onState)
+    setStateButtonSubmit(onStateButton)
     onSubmit(e)
   }
   return (

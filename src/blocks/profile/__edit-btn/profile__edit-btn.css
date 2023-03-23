@@ -15,7 +15,6 @@
   cursor: pointer;
   transition: opacity 0.5s;
   margin-right: 15px;
-
 }
 .profile__edit-btn:hover {
   opacity: 0.6;
@@ -27,6 +26,6 @@
     height: 18px;
     margin-bottom: 6px;
     justify-self: flex-start;
-    margin-left: 8px;
+    margin-left: 14px;
   }
 }

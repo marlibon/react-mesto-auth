@@ -1,22 +1,47 @@
-import { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom"
+import { useState, useEffect, useContext } from "react";
+import { NavLink, useNavigate } from "react-router-dom"
+import * as auth from '../utils/auth';
+import { AppContext } from '../contexts/AppContext';
 
-const Register = ({ isLoading }) => {
+const Register = ({ }) => {
     const [formValues, setFormValues] = useState({ email: '', password: '' })
     const [stateButtonSubmit, setStateButtonSubmit] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const { setisNotifyPopupOpen, setStatusCompleted } = useContext(AppContext);
+    const navigate = useNavigate();
+
     useEffect(() => {
         document.title = 'Регистрация';
     }, []);
-    function handleSubmit () {
-        console.log("сработал handleSubmit");
+
+    function handleSubmit (e) {
+        e.preventDefault()
+        setIsLoading(true)
+        const { email, password } = formValues;
+        auth.register(email, password)
+            .then((res) => {
+                setStatusCompleted(true);
+                setisNotifyPopupOpen(true);
+                setIsLoading(false);
+                navigate('/sign-in', { replace: true });
+            })
+            .catch((err) => {
+                console.log(err);
+                setStatusCompleted(false);
+                setisNotifyPopupOpen(true);
+            })
+            .finally(() => {
+                setIsLoading(false)
+            })
+
     }
+
     function onChange (e) {
         const { name, value } = e.target;
         setFormValues({
             ...formValues,
             [name]: value
         });
-        console.log(formValues);
 
     }
     return (
@@ -25,9 +50,8 @@ const Register = ({ isLoading }) => {
             <form
                 name="form_register"
                 action="/"
-                className="form form_type_register"
+                className="form form_type_auth"
                 onSubmit={handleSubmit}
-                onChange={onChange}
             >
                 <input
                     type="email"
@@ -38,6 +62,7 @@ const Register = ({ isLoading }) => {
                     minLength={2}
                     maxLength={40}
                     value={formValues.email}
+                    onChange={onChange}
                     required
                 />
                 <span
@@ -54,6 +79,7 @@ const Register = ({ isLoading }) => {
                     minLength={2}
                     maxLength={200}
                     value={formValues.password}
+                    onChange={onChange}
                     required
                 />
                 <span

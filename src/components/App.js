@@ -1,21 +1,26 @@
+import { useEffect, useState } from 'react';
+import { Navigate, Route, useNavigate } from "react-router-dom";
+import { CurrentUserContext } from "../contexts/CurrentUserContext";
+import { Routes } from "react-router-dom";
+
+import { AppContext } from '../contexts/AppContext';
+import { api } from "../utils/api";
+
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
-import { useEffect, useState } from 'react';
-import { Navigate, Route, redirect } from "react-router-dom";
-import { CurrentUserContext } from "../contexts/CurrentUserContext";
-import { api } from "../utils/api";
-
 import ImagePopup from "./ImagePopup";
 import imageLoading from "../images/loading.gif";
 import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import ConfirmDeletePopup from "./ConfirmDeletePopup";
-import { Routes } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
+import * as auth from '../utils/auth';
 import Register from "./Register";
 import Login from "./Login";
+import InfoTooltip from "./InfoTooltip";
+import SignOut from './SignOut';
 
 function App () {
   const [isLoadingCards, setIsLoadingCards] = useState(true);
@@ -25,11 +30,16 @@ function App () {
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
   const [isConfirmDeletePopupOpen, setIsConfirmDeletePopupOpen] = useState(false);
+  const [isNotifyPopupOpen, setisNotifyPopupOpen] = useState(false);
+  const [statusCompleted, setStatusCompleted] = useState(true);
+  const [emailAuthedUser, setEmailAuthedUser] = useState('');
   const [futureDeletedCard, setFutureDeletedCard] = useState('');
   const [selectedCard, setSelectedCard] = useState({ name: 'загрузка', link: imageLoading });
   const [currentUser, setСurrentUser] = useState({ name: 'загрузка...', about: 'загрузка...', avatar: imageLoading, _id: '' });
   const [cards, setCards] = useState([]);
-  const [loggedIn, setLoggedIn] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  const navigate = useNavigate();
 
   function handleEditProfileClick () {
     setIsEditProfilePopupOpen(!isEditProfilePopupOpen);
@@ -87,6 +97,7 @@ function App () {
         setIsLoading(false);
       })
   }
+
   function handleAddPlaceSubmit ({ title, url }) {
     setIsLoading(true);
     api.addCard(title, url)
@@ -118,7 +129,8 @@ function App () {
     setIsAddPlacePopupOpen(false);
     setIsEditAvatarPopupOpen(false);
     setIsImagePopupOpen(false);
-    setIsConfirmDeletePopupOpen(false)
+    setIsConfirmDeletePopupOpen(false);
+    setisNotifyPopupOpen(false);
     setSelectedCard({ name: 'загрузка', link: imageLoading });
   }
 
@@ -134,25 +146,41 @@ function App () {
       .finally(() => setIsLoadingCards(false));
   }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      auth.checkToken(token)
+        .then(({ data }) => {
+          setEmailAuthedUser(data.email);
+          setLoggedIn(true);
+          navigate('/', { replace: true });
+        })
+    }
+  }, [])
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className='page'>
-        <Header />
-        <Routes>
-          <Route path="/" element={loggedIn ? <Main
-            cards={cards}
-            onEditProfile={handleEditProfileClick}
-            onAddPlace={handleAddPlaceClick}
-            onEditAvatar={handleEditAvatarClick}
-            onCardClick={handleCardClick}
-            onCardLike={handleCardLike}
-            onCardDelete={handleConfirmCardDelete}
-            onLoading={isLoadingCards}
-            loggedIn={loggedIn}
-          /> : <Navigate to="/sign-in" replace />} />
-          <Route path="/sign-in" element={<Login isLoading={isLoading} />} />
-          <Route path="/sign-up" element={<Register isLoading={isLoading} />} />
-        </Routes>
+        <Header email={emailAuthedUser} />
+        <AppContext.Provider value={{ setisNotifyPopupOpen, setStatusCompleted, loggedIn, setLoggedIn }}>
+          <Routes>
+            <Route path="/" element={<ProtectedRoute
+              element={Main}
+              cards={cards}
+              onEditProfile={handleEditProfileClick}
+              onAddPlace={handleAddPlaceClick}
+              onEditAvatar={handleEditAvatarClick}
+              onCardClick={handleCardClick}
+              onCardLike={handleCardLike}
+              onCardDelete={handleConfirmCardDelete}
+              onLoading={isLoadingCards}
+              loggedIn={loggedIn}
+            />} />
+            <Route path="/sign-in" element={<Login isLoading={isLoading} />} />
+            <Route path="/sign-up" element={<Register isLoading={isLoading} />} />
+            <Route path="/sign-out" element={<SignOut onLoggedIn={setLoggedIn} />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </AppContext.Provider>
         <Footer />
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
@@ -183,6 +211,12 @@ function App () {
           isOpen={isImagePopupOpen}
           onClose={closeAllPopups}
           card={selectedCard}
+        />
+        <InfoTooltip
+          name="notify"
+          isOpen={isNotifyPopupOpen}
+          onClose={closeAllPopups}
+          statusCompleted={statusCompleted}
         />
       </div>
     </CurrentUserContext.Provider>

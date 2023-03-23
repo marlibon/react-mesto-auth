@@ -34,7 +34,7 @@ const EditProfilePopup = (props) => {
             textButton="Сохранить"
             {...props}
             onSubmit={handleSubmit}
-            onState={false}
+            onStateButton={false}
         >
             <input
                 type="text"

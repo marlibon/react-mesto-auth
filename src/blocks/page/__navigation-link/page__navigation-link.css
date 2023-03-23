@@ -5,7 +5,6 @@
   text-decoration: none;
 }
 .page__navigation-link:hover {
-  color: #cccccc;
+  opacity: 0.6;
   transition: all 0.3s;
-  text-decoration: underline;
 }

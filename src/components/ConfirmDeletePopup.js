@@ -7,7 +7,7 @@ const ConfirmDeletePopup = (props) => {
         props.onCardDelete(props.onFutureDeletedCard)
     }
     return (
-        <PopupWithForm name="confirmation" title="Вы уверены?" {...props} textButton="Да" onSubmit={handleSubmit} onState={true} />)
+        <PopupWithForm name="confirmation" title="Вы уверены?" {...props} textButton="Да" onSubmit={handleSubmit} onStateButton={true} />)
 }
 
 export default ConfirmDeletePopup

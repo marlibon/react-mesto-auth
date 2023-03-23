@@ -7,3 +7,11 @@
   text-align: center;
   line-height: 29.05px;
 }
+@media screen and (max-width: 390px) {
+  .page__title {
+    font-style: normal;
+    font-size: 20px;
+    line-height: 24px;
+    padding: 39px 0 17px 0;
+  }
+}

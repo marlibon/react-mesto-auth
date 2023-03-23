@@ -35,7 +35,7 @@ const AddPlacePopup = (props) => {
             textButton="Создать"
             {...props}
             onSubmit={handleSubmit}
-            onState={false}
+            onStateButton={false}
         >
             <input
                 type="text"
