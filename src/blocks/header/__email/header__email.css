@@ -9,3 +9,9 @@
   color: #ffffff;
   padding-right: 18px;
 }
+@media screen and (max-width: 390px) {
+  .header__email {
+    padding-right: 0;
+    padding-bottom: 18px;
+  }
+}
