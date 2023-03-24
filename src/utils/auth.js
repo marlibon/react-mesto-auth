@@ -22,7 +22,7 @@ export const register = (email, password) => {
         },
         body: JSON.stringify({ email, password })
     })
-        .then((res) => res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`))
+        .then((res => res.ok || res.status === 400 ? res.json() : Promise.reject(`Ошибка: ${res.status}`)))
 
 };
 
@@ -36,14 +36,5 @@ export const authorize = (email, password) => {
         body: JSON.stringify({ email, password })
     })
         .then((res => res.ok || res.status === 401 ? res.json() : Promise.reject(`Ошибка: ${res.status}`)))
-        .then((data) => {
-            if (data.token) {
-                localStorage.setItem('token', data.token);
-                return data;
-            }
-            if (data.message) {
-                Promise.reject(`Ошибка: ${data.message}`)
-            }
-        })
-        .catch(err => console.log(err))
+
 };

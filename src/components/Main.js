@@ -1,9 +1,14 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import Spinner from "./Spinner";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
 import Card from "./Card";
 
 function Main ({ cards, onEditAvatar, onEditProfile, onAddPlace, onCardClick, onCardLike, onCardDelete, onLoading }) {
+
+  useEffect(() => {
+    document.title = 'Mesto: React - Проект по авторизации';
+  }, []);
+
   const { name, about, avatar } = useContext(CurrentUserContext);
   return (
     <main className="main page__content">

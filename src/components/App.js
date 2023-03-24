@@ -3,7 +3,6 @@ import { Navigate, Route, useNavigate } from "react-router-dom";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
 import { Routes } from "react-router-dom";
 
-import { AppContext } from '../contexts/AppContext';
 import { api } from "../utils/api";
 
 import Header from "./Header";
@@ -21,9 +20,10 @@ import Register from "./Register";
 import Login from "./Login";
 import InfoTooltip from "./InfoTooltip";
 import SignOut from './SignOut';
+import Loading from './Loading';
 
 function App () {
-  const [isLoadingCards, setIsLoadingCards] = useState(true);
+  const [isLoadingCards, setIsLoadingCards] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
@@ -32,6 +32,7 @@ function App () {
   const [isConfirmDeletePopupOpen, setIsConfirmDeletePopupOpen] = useState(false);
   const [isNotifyPopupOpen, setisNotifyPopupOpen] = useState(false);
   const [statusCompleted, setStatusCompleted] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(true);
   const [emailAuthedUser, setEmailAuthedUser] = useState('');
   const [futureDeletedCard, setFutureDeletedCard] = useState('');
   const [selectedCard, setSelectedCard] = useState({ name: 'загрузка', link: imageLoading });
@@ -124,6 +125,51 @@ function App () {
       })
   }
 
+  function handleLogin (email, password) {
+    setIsLoading(true)
+    auth.authorize(email, password)
+      .then((data) => {
+        if (data.message) {
+          setErrorMessage(data.message);
+          throw new Error(data.message);
+        }
+        if (data.token) {
+          localStorage.setItem('token', data.token)
+          setEmailAuthedUser(email);
+          setLoggedIn(true);
+          navigate('/', { replace: true });
+        }
+      })
+      .catch(err => {
+        setStatusCompleted(false);
+        setisNotifyPopupOpen(true);
+        console.log(err.message)
+      })
+      .finally(() => setIsLoading(false))
+  }
+  function handleRegister (email, password) {
+    setIsLoading(true)
+    auth.register(email, password)
+      .then((res) => {
+        if (res.message) {
+          setErrorMessage(res.message);
+          throw new Error(res.message);
+        }
+        if (res.error) {
+          setErrorMessage(res.error);
+          throw new Error(res.error);
+        }
+        setStatusCompleted(true);
+        setisNotifyPopupOpen(true);
+        navigate('/sign-in', { replace: true });
+      })
+      .catch((err) => {
+        setStatusCompleted(false);
+        setisNotifyPopupOpen(true);
+        console.log(err);
+      })
+      .finally(() => setIsLoading(false))
+  }
   function closeAllPopups () {
     setIsEditProfilePopupOpen(false);
     setIsAddPlacePopupOpen(false);
@@ -135,52 +181,58 @@ function App () {
   }
 
   useEffect(() => {
-    Promise.all([api.getUserInfo(), api.getCardList()])
-      .then(([{ name, about, avatar, _id }, cardsFromServer]) => {
-        setСurrentUser({ name, about, avatar, _id });
-        setCards(cardsFromServer);
-      })
-      .catch((error) => {
-        console.error(error);
-      })
-      .finally(() => setIsLoadingCards(false));
-  }, []);
+    if (loggedIn) {
+      Promise.all([api.getUserInfo(), api.getCardList()])
+        .then(([{ name, about, avatar, _id }, cardsFromServer]) => {
+          setСurrentUser({ name, about, avatar, _id });
+          setCards(cardsFromServer);
+        })
+        .catch((error) => {
+          console.error(error);
+        })
+        .finally(() => setIsLoadingCards(false));
+    }
+  }, [loggedIn]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
+    if (token && !loggedIn) {
+      setIsLoading(true)
       auth.checkToken(token)
         .then(({ data }) => {
           setEmailAuthedUser(data.email);
           setLoggedIn(true);
           navigate('/', { replace: true });
+          setIsLoading(false);
+          setIsLoadingCards(true)
         })
     }
-  }, [])
+  }, [loggedIn])
+
+  if (isLoading) return <Loading />;
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className='page'>
         <Header email={emailAuthedUser} />
-        <AppContext.Provider value={{ setisNotifyPopupOpen, setStatusCompleted, loggedIn, setLoggedIn }}>
-          <Routes>
-            <Route path="/" element={<ProtectedRoute
-              element={Main}
-              cards={cards}
-              onEditProfile={handleEditProfileClick}
-              onAddPlace={handleAddPlaceClick}
-              onEditAvatar={handleEditAvatarClick}
-              onCardClick={handleCardClick}
-              onCardLike={handleCardLike}
-              onCardDelete={handleConfirmCardDelete}
-              onLoading={isLoadingCards}
-              loggedIn={loggedIn}
-            />} />
-            <Route path="/sign-in" element={<Login isLoading={isLoading} />} />
-            <Route path="/sign-up" element={<Register isLoading={isLoading} />} />
-            <Route path="/sign-out" element={<SignOut onLoggedIn={setLoggedIn} />} />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </AppContext.Provider>
+        <Routes>
+          <Route path="/" element={<ProtectedRoute
+            element={Main}
+            cards={cards}
+            onEditProfile={handleEditProfileClick}
+            onAddPlace={handleAddPlaceClick}
+            onEditAvatar={handleEditAvatarClick}
+            onCardClick={handleCardClick}
+            onCardLike={handleCardLike}
+            onCardDelete={handleConfirmCardDelete}
+            onLoading={isLoadingCards}
+            loggedIn={loggedIn}
+          />} />
+          <Route path="/sign-in" element={<Login onLogin={handleLogin} isLoading={isLoading} />} />
+          <Route path="/sign-up" element={<Register onRegister={handleRegister} isLoading={isLoading} />} />
+          <Route path="/sign-out" element={<SignOut onLoggedIn={setLoggedIn} />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
         <Footer />
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
@@ -217,6 +269,7 @@ function App () {
           isOpen={isNotifyPopupOpen}
           onClose={closeAllPopups}
           statusCompleted={statusCompleted}
+          errorMessage={errorMessage}
         />
       </div>
     </CurrentUserContext.Provider>

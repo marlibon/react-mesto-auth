@@ -4,15 +4,23 @@ import imageFail from '../images/fail.png'
 import { useEffect, useState } from 'react';
 
 const InfoTooltip = (props) => {
-    const { name, isOpen, onClose, statusCompleted } = props;
+    const { name, isOpen, onClose, statusCompleted, errorMessage } = props;
     const [content, setContent] = useState({ image: '', text: '' });
 
     useEffect(() => {
-        statusCompleted && setContent({ image: imageSuccess, text: 'Вы успешно зарегистрировались!' })
-        !statusCompleted && setContent({
-            image: imageFail, text: 'Что-то пошло не так! Попробуйте ещё раз.'
-        })
-    }, [statusCompleted])
+
+        if (statusCompleted) {
+            setContent({ image: imageSuccess, text: 'Вы успешно зарегистрировались!' })
+        }
+        if (!statusCompleted && !errorMessage) {
+            setContent({ image: imageFail, text: 'Что-то пошло не так! Попробуйте ещё раз.' })
+        }
+        // если пропс с текстом ошибки у нас передан, то показываем  его
+        if (!statusCompleted && errorMessage) {
+            setContent({ image: imageFail, text: errorMessage })
+        }
+    }, [statusCompleted, errorMessage])
+
     return (
         <Popup name={name} isOpen={isOpen} onClose={onClose}>
             <div className="popup__container">
