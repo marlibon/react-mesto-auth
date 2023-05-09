@@ -6,22 +6,30 @@ class Api {
 
   _getResponseData = res => res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`);
 
+  // эта функция для обновления токена при выходе/входе разных пользователей
+  _headersData = () => {
+    this._token = localStorage.getItem('token');
+    this._headers.authorization = `Bearer ${this._token}`
+    return this._headers;
+  }
   getCardList = () => {
     return fetch(`${this._baseUrl}/cards`, {
-      headers: this._headers,
+      method: 'GET',
+      headers: this._headersData(),
     }).then(this._getResponseData);
   };
 
   getUserInfo = () => {
     return fetch(`${this._baseUrl}/users/me`, {
-      headers: this._headers,
+      method: 'GET',
+      headers: this._headersData(),
     }).then(this._getResponseData);
   };
 
   patchUserInfo = (name, about) => {
     return fetch(`${this._baseUrl}/users/me`, {
       method: "PATCH",
-      headers: this._headers,
+      headers: this._headersData(),
       body: JSON.stringify({
         name,
         about,
@@ -32,7 +40,7 @@ class Api {
   addCard = (name, link) => {
     return fetch(`${this._baseUrl}/cards`, {
       method: "POST",
-      headers: this._headers,
+      headers: this._headersData(),
       body: JSON.stringify({
         name: name,
         link: link,
@@ -43,7 +51,7 @@ class Api {
   removeCard = (id) => {
     return fetch(`${this._baseUrl}/cards/${id}`, {
       method: "DELETE",
-      headers: this._headers,
+      headers: this._headersData(),
     }).then(this._getResponseData);
   };
 
@@ -51,14 +59,14 @@ class Api {
     value = value ? "DELETE" : "PUT";
     return fetch(`${this._baseUrl}/cards/${id}/likes`, {
       method: `${value}`,
-      headers: this._headers,
+      headers: this._headersData(),
     }).then(this._getResponseData);
   };
 
   replaceAvatar = (avatar) => {
     return fetch(`${this._baseUrl}/users/me/avatar`, {
       method: "PATCH",
-      headers: this._headers,
+      headers: this._headersData(),
       body: JSON.stringify({
         avatar,
       }),
@@ -67,9 +75,16 @@ class Api {
 }
 // создание экземпляра подключения к серверу
 export const api = new Api({
-  baseUrl: "https://mesto.nomoreparties.co/v1/cohort-59",
+  baseUrl: "http://localhost:3000",
   headers: {
-    authorization: "6820f07f-8dfa-4fad-8bb6-c96815674778",
     "Content-Type": "application/json",
+    'Accept': 'application/json',
   },
 });
+// export const api = new Api({
+//   baseUrl: "https://mesto.nomoreparties.co/v1/cohort-59",
+//   headers: {
+//     authorization: "6820f07f-8dfa-4fad-8bb6-c96815674778",
+//     "Content-Type": "application/json",
+//   },
+// });

@@ -1,4 +1,5 @@
-export const BASE_URL = 'https://auth.nomoreparties.co';
+// export const BASE_URL = 'https://auth.nomoreparties.co';
+export const BASE_URL = 'http://localhost:3000';
 
 export const checkToken = (token) => {
     return fetch(`${BASE_URL}/users/me`, {
@@ -10,7 +11,6 @@ export const checkToken = (token) => {
     })
         .then((res => res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`)))
         .then((data) => data)
-        .catch(err => console.log(err))
 };
 
 export const register = (email, password) => {

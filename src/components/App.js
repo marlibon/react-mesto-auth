@@ -199,12 +199,16 @@ function App () {
     if (token && !loggedIn) {
       setIsLoading(true)
       auth.checkToken(token)
-        .then(({ data }) => {
+        .then((data) => {
           setEmailAuthedUser(data.email);
           setLoggedIn(true);
           navigate('/', { replace: true });
           setIsLoading(false);
           setIsLoadingCards(true)
+        })
+        .catch(err => {
+          console.log(err)
+          setIsLoading(false);
         })
     }
   }, [loggedIn])

@@ -6,7 +6,6 @@ function PopupWithForm (props) {
   const [stateButtonSubmit, setStateButtonSubmit] = useState(onStateButton);
   function onChangeValidation (e) {
     const { name, value } = e.target
-    console.log(name, value, e);
     const currentInput = e.target;
     const errorContainer = currentInput.nextSibling;
     const form = e.currentTarget;
