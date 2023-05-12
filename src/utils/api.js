@@ -1,3 +1,5 @@
+import { BASE_URL } from "./auth";
+
 class Api {
   constructor(options) {
     this._baseUrl = options.baseUrl;
@@ -75,7 +77,7 @@ class Api {
 }
 // создание экземпляра подключения к серверу
 export const api = new Api({
-  baseUrl: "http://localhost:3000",
+  baseUrl: BASE_URL,
   headers: {
     "Content-Type": "application/json",
     'Accept': 'application/json',
